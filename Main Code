@@ -1,0 +1,69 @@
+import PySimpleGUI as sg
+from PIL import Image,ImageTk,ImageFilter
+sg.theme('DarkPurple1')
+
+one_row = [sg.FileBrowse(),sg.Input(key="ImagePath")]
+two_row = [sg.Submit(key= "Done")]
+
+#col_one = [sg.Button("Transpose",key ="Transpose",size = (8,2))]
+col_two = [sg.Button("Histogram",key ="Histogram",size = (8,2)),sg.Button("Resize",key ="Resize",size = (8,2)),sg.Button("Transpose",key ="Transpose",size = (8,2))]
+col_rot = [sg.Text('Enter the degree of rotation:',size=(10,2)),sg.Input(key= 'degree')]
+col_fourth = [sg.Button("Rotate",key ="Rotate",size = (8,2))]
+col_fifth = [sg.Button("Mosaic",key ="Mosaic",size = (8,2)),sg.Button("Retrieve Size",key ="RetrieveSize",size = (8,2)),sg.Button("Thumbnail",key ="Thumbnail",size = (8,2))]
+#col_sixth = [sg.Button("Retrieve Size",key ="RetrieveSize",size = (8,4))]
+#col_seven = [sg.Button("Thumbnail",key ="Thumbnail",size = (8,2))]
+
+third_row = [sg.Button("Save",key = "Save"),sg.Cancel("Cancel")]
+
+col = [col_two,col_rot,col_fourth,col_fifth]
+
+layout = [one_row,two_row,[sg.Column(col)],[sg.Image(key= "showimage")],third_row]
+
+title = "Edit Your Image"
+
+window = sg.Window(title,layout,size=(1920,720))
+
+while True:
+    event,values = window.read()
+    if event == sg.WIN_CLOSED or event == "Cancel":
+        break
+    elif event == "Done":
+        pic = Image.open(values["ImagePath"])
+        window["showimage"].update(data= ImageTk.PhotoImage(pic))
+    elif event == "Transpose":
+        pic = pic.transpose(Image.FLIP_LEFT_RIGHT)
+        window["showimage"].update(data= ImageTk.PhotoImage(pic))
+    elif event == "Histogram":
+        a = pic.histogram()
+        print(a)
+
+    elif event == "Resize":
+        pic = Image.open(values["ImagePath"])
+        width, height = pic.size 
+        pic = pic.resize((int(width/2), int(height/2)))
+        window["showimage"].update(data= ImageTk.PhotoImage(pic))
+
+    elif event == "Rotate":
+         degree = values["degree"]
+         pic = pic.rotate(float(degree))
+         window["showimage"].update(data= ImageTk.PhotoImage(pic))
+        
+    elif event == "Mosaic":
+        pic = pic.filter(ImageFilter.BoxBlur(3))
+        window["showimage"].update(data= ImageTk.PhotoImage(pic))
+    
+    elif event == "RetrieveSize":
+        width, height = pic.size
+        print(width, height)
+        
+    elif event == "Thumbnail":
+        pic.thumbnail((200, 200))
+        window["showimage"].update(data= ImageTk.PhotoImage(pic))
+        
+    elif event == "Save":
+        pic.save("edit.jpeg")
+    
+    else:
+        break
+    
+window.close()
